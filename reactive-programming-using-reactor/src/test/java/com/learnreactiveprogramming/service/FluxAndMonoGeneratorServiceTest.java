@@ -17,4 +17,29 @@ public class FluxAndMonoGeneratorServiceTest {
                 .expectNext("alex", "tom", "tim")
                 .verifyComplete();
     }
+
+    @Test
+    void testDelay() {
+        Flux<String> stringFlux = test.exploreConcat();
+        StepVerifier.create(stringFlux)
+                .expectNext("a", "b", "c")
+                .expectNext("e", "f", "g")
+                .verifyComplete();
+    }
+
+    @Test
+    void testMerge() {
+        Flux<String> stringFlux = test.exploreMerge();
+        StepVerifier.create(stringFlux)
+                .expectNextCount(9)
+                .verifyComplete();
+    }
+
+    @Test
+    void testZip() {
+        Flux<String> stringFlux = test.exploreZip();
+        StepVerifier.create(stringFlux)
+                .expectNextCount(3)
+                .verifyComplete();
+    }
 }
