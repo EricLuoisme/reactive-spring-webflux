@@ -85,4 +85,23 @@ class FluxAndMonoControllerTest {
                 });
     }
 
+    /**
+     * For stream, we have to use StepVerifier and calling the thenCancel() function, to stop the stream
+     */
+    @Test
+    void stream_approach() {
+        var fluxResp = webTestClient.get()
+                .uri("/stream")
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful()
+                .returnResult(Long.class)
+                .getResponseBody();
+
+        StepVerifier.create(fluxResp)
+                .expectNext(0L, 1L, 2L, 3L)
+                .thenCancel()
+        .verify();
+    }
+
 }
