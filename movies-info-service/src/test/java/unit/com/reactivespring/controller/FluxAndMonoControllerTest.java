@@ -54,6 +54,9 @@ class FluxAndMonoControllerTest {
                 .verifyComplete();
     }
 
+    /**
+     * Approach 3, consume the Flux response, and verify them one by one
+     */
     @Test
     void flux_approach3() {
         webTestClient.get()
@@ -65,6 +68,20 @@ class FluxAndMonoControllerTest {
                 .consumeWith(res -> {
                     List<Integer> responseBody = res.getResponseBody();
                     assert Objects.requireNonNull(responseBody).size() == 3;
+                });
+    }
+
+    @Test
+    void mono_approach1() {
+        webTestClient.get()
+                .uri("/mono")
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful()
+                .expectBody(String.class)
+                .consumeWith(res -> {
+                    var responseBody = res.getResponseBody();
+                    assertEquals("Hello World", responseBody);
                 });
     }
 
