@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 @DataMongoTest
@@ -54,11 +55,24 @@ public class MovieInfoRepositoryIntgTest {
 
     @Test
     void findById() {
-        var moviesInfoFlux = movieInfoRepository.findById("abc").log();
-        StepVerifier.create(moviesInfoFlux)
+        var moviesInfoMono = movieInfoRepository.findById("abc").log();
+        StepVerifier.create(moviesInfoMono)
                 .assertNext(movieInfo -> {
                     assertEquals("Dark Knight Rises", movieInfo.getName());
                 });
+    }
 
+    @Test
+    void saveMovieInfo() {
+
+        MovieInfo movieInfo1 = new MovieInfo(null, "Batman Begins 222", 2005,
+                List.of("Christian Bale", "Michael Cane"),
+                LocalDate.parse("2005-06-15"));
+
+        var moviesInfoMono = movieInfoRepository.save(movieInfo1).log();
+        StepVerifier.create(moviesInfoMono)
+                .assertNext(movieInfo -> {
+                    assertNotNull(movieInfo.getMovieInfoId());
+                });
     }
 }
