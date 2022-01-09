@@ -12,6 +12,9 @@ import reactor.test.StepVerifier;
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+
 @DataMongoTest
 @ActiveProfiles("test")
 public class MovieInfoRepositoryIntgTest {
@@ -26,7 +29,7 @@ public class MovieInfoRepositoryIntgTest {
                         LocalDate.parse("2005-06-15")),
                 new MovieInfo(null, "The Dark Knight", 2008, List.of("Christian Bale", "Health Ledger"),
                         LocalDate.parse("2008-07-18")),
-                new MovieInfo(null, "Dark Knight Rises", 2012, List.of("Christian Bale", "Tom Hardy"),
+                new MovieInfo("abc", "Dark Knight Rises", 2012, List.of("Christian Bale", "Tom Hardy"),
                         LocalDate.parse("2012-07-20")));
 
         movieInfoRepository.saveAll(movieInfos)
@@ -47,5 +50,15 @@ public class MovieInfoRepositoryIntgTest {
         StepVerifier.create(movieInfoFlux)
                 .expectNextCount(3)
                 .verifyComplete();
+    }
+
+    @Test
+    void findById() {
+        var moviesInfoFlux = movieInfoRepository.findById("abc").log();
+        StepVerifier.create(moviesInfoFlux)
+                .assertNext(movieInfo -> {
+                    assertEquals("Dark Knight Rises", movieInfo.getName());
+                });
+
     }
 }
