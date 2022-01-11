@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.reactive.server.WebTestClient;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,6 +25,12 @@ class MoviesInfoControllerTest {
     @Autowired
     MovieInfoRepository movieInfoRepository;
 
+    @Autowired
+    WebTestClient webTestClient;
+
+    static String MOVIE_INFO_URL = "/v1/movieinfos";
+
+
     @BeforeEach
     void setUp() {
         var movieInfos = List.of(
@@ -31,7 +38,7 @@ class MoviesInfoControllerTest {
                         LocalDate.parse("2005-06-15")),
                 new MovieInfo(null, "The Dark Knight", 2008, List.of("Christian Bale", "Health Ledger"),
                         LocalDate.parse("2008-07-18")),
-                new MovieInfo("abc", "Dark Knight Rises", 2012, List.of("Christian Bale", "Tom Hardy"),
+                new MovieInfo(null, "Dark Knight Rises", 2012, List.of("Christian Bale", "Tom Hardy"),
                         LocalDate.parse("2012-07-20")));
 
         movieInfoRepository.saveAll(movieInfos)
@@ -47,5 +54,23 @@ class MoviesInfoControllerTest {
 
     @Test
     void addMovieInfo() {
+
+        MovieInfo movieInfo = new MovieInfo(null, "Dark Knight Rises 2222222", 2012,
+                List.of("Christian Bale", "Tom Hardy"), LocalDate.parse("2012-07-20"));
+
+        webTestClient
+                .post()
+                .uri(MOVIE_INFO_URL)
+                .bodyValue(movieInfo)
+                .exchange()
+                .expectStatus()
+                .isCreated()
+                .expectBody(MovieInfo.class)
+                .consumeWith(result -> {
+                    MovieInfo responseBody = result.getResponseBody();
+                    assert responseBody != null;
+                    assert responseBody.getMovieInfoId() != null;
+                });
+
     }
 }
