@@ -100,10 +100,30 @@ public class MoviesInfoControllerUnitTest {
                 .expectBody(MovieInfo.class)
                 .consumeWith(movieInfoEntityExchangeResult -> {
                     MovieInfo responseBody = movieInfoEntityExchangeResult.getResponseBody();
-                    assert  responseBody != null;
-                    assert  responseBody.getMovieInfoId() != null;
+                    assert responseBody != null;
+                    assert responseBody.getMovieInfoId() != null;
                     Assertions.assertEquals("mockId", responseBody.getMovieInfoId());
                 });
+    }
+
+    @Test
+    void addMovieInfoFail() {
+        var movieInfo = new MovieInfo(null, "Batman Begins1", 2005,
+                List.of("", "Michael Cane"), LocalDate.parse("2005-06-15"));
+
+        Mockito.when(serviceMock.addMovieInfo(ArgumentMatchers.isA(MovieInfo.class)))
+                .thenReturn(Mono.just(
+                        new MovieInfo("mockId", "Batman Begins1", 2005,
+                                List.of("Christain Bale", "Michael Cane"), LocalDate.parse("2005-06-15")))
+                );
+
+        webTestClient
+                .post()
+                .uri(MOVIE_INFO_URL)
+                .bodyValue(movieInfo)
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
 
     }
 
