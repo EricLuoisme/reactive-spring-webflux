@@ -2,7 +2,9 @@ package com.reactivespring.controller;
 
 import com.reactivespring.domain.MovieInfo;
 import com.reactivespring.service.MoviesInfoService;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
@@ -15,6 +17,7 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDate;
 import java.util.List;
 
+
 @WebFluxTest(controllers = {MoviesInfoController.class})
 @AutoConfigureWebTestClient
 public class MoviesInfoControllerUnitTest {
@@ -22,10 +25,14 @@ public class MoviesInfoControllerUnitTest {
     @Autowired
     private WebTestClient webTestClient;
 
+    /**
+     * Inject MockBean into Spring Context
+     */
     @MockBean
     private MoviesInfoService serviceMock;
 
-    static String MOVIE_INFO_URL = "/v1/movieinfos";
+
+    final static String MOVIE_INFO_URL = "/v1/movieinfos";
 
 
     @Test
@@ -68,7 +75,36 @@ public class MoviesInfoControllerUnitTest {
                 .expectStatus()
                 .is2xxSuccessful()
                 .expectBody()
-                .jsonPath("$.name").isEqualTo("Dark Knight Rises");
+                .jsonPath("$.name")
+                .isEqualTo("Dark Knight Rises");
+    }
+
+    @Test
+    void addMovieInfo() {
+        var movieInfo = new MovieInfo(null, "Batman Begins1", 2005,
+                List.of("Christain Bale", "Michael Cane"), LocalDate.parse("2005-06-15"));
+
+        Mockito.when(serviceMock.addMovieInfo(ArgumentMatchers.isA(MovieInfo.class)))
+                .thenReturn(Mono.just(
+                        new MovieInfo("mockId", "Batman Begins1", 2005,
+                                List.of("Christain Bale", "Michael Cane"), LocalDate.parse("2005-06-15")))
+                );
+
+        webTestClient
+                .post()
+                .uri(MOVIE_INFO_URL)
+                .bodyValue(movieInfo)
+                .exchange()
+                .expectStatus()
+                .isCreated()
+                .expectBody(MovieInfo.class)
+                .consumeWith(movieInfoEntityExchangeResult -> {
+                    MovieInfo responseBody = movieInfoEntityExchangeResult.getResponseBody();
+                    assert  responseBody != null;
+                    assert  responseBody.getMovieInfoId() != null;
+                    Assertions.assertEquals("mockId", responseBody.getMovieInfoId());
+                });
+
     }
 
     @Test
