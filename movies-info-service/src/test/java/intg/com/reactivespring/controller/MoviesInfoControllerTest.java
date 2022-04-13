@@ -98,11 +98,12 @@ class MoviesInfoControllerTest {
 
     @Test
     void updateMovieInfoById() {
-        MovieInfo movieInfo = new MovieInfo("abc", "Dark Knight Rises", 2021,
+        String id = "abc";
+        MovieInfo movieInfo = new MovieInfo(id, "Dark Knight Rises", 2021,
                 List.of("Christian Bale", "Tom Hardy"), LocalDate.parse("2012-07-20"));
         webTestClient
                 .put()
-                .uri(MOVIE_INFO_URL)
+                .uri(MOVIE_INFO_URL + "/{id}", id)
                 .bodyValue(movieInfo)
                 .exchange()
                 .expectStatus()
@@ -113,6 +114,21 @@ class MoviesInfoControllerTest {
                     assert updatedMovieInfo.getYear() == 2021;
                 });
     }
+
+    @Test
+    void updateMovieInfoById_NotFound() {
+        String id = "abccba";
+        MovieInfo movieInfo = new MovieInfo(id, "Dark Knight Rises", 2021,
+                List.of("Christian Bale", "Tom Hardy"), LocalDate.parse("2012-07-20"));
+        webTestClient
+                .put()
+                .uri(MOVIE_INFO_URL + "/{id}", id)
+                .bodyValue(movieInfo)
+                .exchange()
+                .expectStatus()
+                .isNotFound();
+    }
+
 
     @Test
     void deleteMovieInfoById() {

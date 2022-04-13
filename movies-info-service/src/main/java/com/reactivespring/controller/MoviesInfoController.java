@@ -4,12 +4,17 @@ import com.reactivespring.domain.MovieInfo;
 import com.reactivespring.service.MoviesInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
 
+/**
+ * For the WebFlux response, if we put noting (not specifically put @ResponseStatus),
+ * even an error occur inside, we still response on HttpStatus:2xx
+ */
 @RestController
 @RequestMapping("/v1")
 public class MoviesInfoController {
@@ -30,9 +35,15 @@ public class MoviesInfoController {
                 .log();
     }
 
-    @PutMapping("/movieinfos")
-    public Mono<MovieInfo> updateMovieInfosById(@RequestBody @Valid MovieInfo movieInfo) {
-        return moviesInfoService.updateMovieIndo(movieInfo)
+    /**
+     * By convert Mono-MovieInfo into Mono-ResponseEntity-MovieInfo,
+     * we could get much more clear response when facing error
+     */
+    @PutMapping("/movieinfos/{id}")
+    public Mono<ResponseEntity<MovieInfo>> updateMovieInfosById(@RequestBody @Valid MovieInfo inputMovieInfo, @PathVariable String id) {
+        return moviesInfoService.updateMovieIndo(inputMovieInfo, id)
+                .map(ResponseEntity.ok()::body)
+                .switchIfEmpty(Mono.just(ResponseEntity.notFound().build()))
                 .log();
     }
 

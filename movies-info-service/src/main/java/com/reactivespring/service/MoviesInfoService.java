@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
+
 @Service
 public class MoviesInfoService {
 
@@ -26,8 +28,10 @@ public class MoviesInfoService {
         return movieInfoRepository.findById(id);
     }
 
-    public Mono<MovieInfo> updateMovieIndo(MovieInfo movieInfo) {
-        return movieInfoRepository.findById(movieInfo.getMovieInfoId())
+    public Mono<MovieInfo> updateMovieIndo(MovieInfo movieInfo, String id) {
+        return movieInfoRepository.findById(id)
+                // make sure it can return empty
+                .switchIfEmpty(Mono.empty())
                 .flatMap(stored -> {
                     stored.setCast(movieInfo.getCast());
                     stored.setName(movieInfo.getName());
