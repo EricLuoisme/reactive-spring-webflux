@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.mongo.embedded.EmbeddedMongoAutoCo
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
+import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import java.time.LocalDate;
@@ -76,4 +77,32 @@ public class MovieInfoRepositoryIntgTest {
                     assertNotNull(movieInfo.getMovieInfoId());
                 });
     }
+
+    @Test
+    void findByYear() {
+
+        var moviesInfoFlux = movieInfoRepository.findByYear(2005).log();
+
+        StepVerifier.create(moviesInfoFlux)
+                .expectNextCount(1)
+                .verifyComplete();
+
+    }
+
+    @Test
+    void findByName() {
+
+        var moviesInfoFlux = movieInfoRepository.findByName("The Dark Knight").log();
+
+        StepVerifier.create(moviesInfoFlux)
+                .expectNextCount(1)
+                .verifyComplete();
+
+    }
+
+
+
+
+
+
 }

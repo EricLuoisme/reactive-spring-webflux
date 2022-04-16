@@ -24,8 +24,20 @@ public class MoviesInfoController {
 
 
     @GetMapping("/movieinfos")
-    public Flux<MovieInfo> getAllMovieInfos() {
+    public Flux<MovieInfo> getAllMovieInfos(@RequestParam(value = "year", required = false) Integer year,
+                                            @RequestParam(value = "name", required = false) String name) {
+
+        if (null != year) {
+            return moviesInfoService.getMovieInfoByYear(year);
+        }
+
         return moviesInfoService.getAllMovieInfos()
+                .log();
+    }
+
+    @GetMapping("/movieinfos")
+    public Mono<MovieInfo> getAllMovieInfos(@RequestParam(value = "name", required = false) String name) {
+        return moviesInfoService.getMovieInfoByName(name)
                 .log();
     }
 
