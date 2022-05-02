@@ -1,5 +1,6 @@
 package com.reactivespring.router;
 
+import com.reactivespring.handler.ReviewHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.server.RouterFunction;
@@ -13,9 +14,10 @@ public class ReviewRouter {
      * It has to be bean to let Spring handle the route
      */
     @Bean
-    public RouterFunction<ServerResponse> reviewsRoute() {
+    public RouterFunction<ServerResponse> reviewsRoute(ReviewHandler reviewHandler) {
         return RouterFunctions.route()
                 .GET("/v1/helloworld", request -> ServerResponse.ok().bodyValue("helloworld"))
+                .POST("/v1/reviews", review -> reviewHandler.addReview(review))
                 .build();
     }
 }
