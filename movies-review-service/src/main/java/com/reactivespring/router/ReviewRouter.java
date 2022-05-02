@@ -20,7 +20,9 @@ public class ReviewRouter {
                 .nest(RequestPredicates.path("/v1/reviews"),
                         builder -> builder
                                 .POST("", reviewHandler::addReview)
-                                .GET("", request -> reviewHandler.getReview()))
+                                .GET("", reviewHandler::getReview)
+                                .PUT("/{id}", reviewHandler::updateReview)
+                                .DELETE("/{id}", reviewHandler::deleteReview))
                 .GET("/v1/helloworld", request -> ServerResponse.ok().bodyValue("helloworld"))
                 .build();
     }

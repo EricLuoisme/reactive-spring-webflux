@@ -72,8 +72,54 @@ public class ReviewsIntgTest {
                 .uri(REVIEW_URL)
                 .exchange()
                 .expectStatus()
-                .isCreated()
+                .is2xxSuccessful()
                 .expectBodyList(Review.class)
                 .hasSize(3);
+    }
+
+    @Test
+    void updateReview() {
+        var review = new Review(null, 1L, "Awesome Movie", 9.5);
+        webTestClient
+                .post()
+                .uri(REVIEW_URL)
+                .bodyValue(review)
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful()
+                .expectBody(Review.class)
+                .consumeWith(reviewEntityExchangeResult -> {
+                    Review savedReview = reviewEntityExchangeResult.getResponseBody();
+                    assert savedReview.getMovieInfoId().equals(review.getMovieInfoId());
+                    assert savedReview.getRating().equals(review.getRating());
+                });
+    }
+
+    @Test
+    void deleteReview() {
+        webTestClient
+                .delete()
+                .uri(REVIEW_URL + "/{id}", 1L)
+                .exchange()
+                .expectStatus()
+                .isNoContent();
+    }
+
+    @Test
+    void getReviewByMovieInfoId() {
+        webTestClient
+                .get()
+                .uri(uriBuilder ->
+                        uriBuilder.path(REVIEW_URL)
+                                .queryParam("movieInfoId", 1L)
+                                .build())
+                .exchange()
+                .expectStatus()
+                .is2xxSuccessful()
+                .expectBodyList(Review.class)
+                .consumeWith(listEntityExchangeResult -> {
+                    List<Review> responseBody = listEntityExchangeResult.getResponseBody();
+                    assert responseBody.size() == 2;
+                });
     }
 }
