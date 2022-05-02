@@ -31,7 +31,7 @@ public class ReviewsIntgTest {
     @BeforeEach
     void setUp() {
         var reviewsList = List.of(
-                new Review(null, 1L, "Awesome Movie", 9.0),
+                new Review("1", 1L, "Awesome Movie", 9.0),
                 new Review(null, 1L, "Awesome Movie, Great", 9.0),
                 new Review(null, 2L, "Excellent Movie", 8.0)
         );
@@ -79,10 +79,10 @@ public class ReviewsIntgTest {
 
     @Test
     void updateReview() {
-        var review = new Review(null, 1L, "Awesome Movie", 9.5);
+        var review = new Review("1", 1L, "Awesome Movie", 9.5);
         webTestClient
-                .post()
-                .uri(REVIEW_URL)
+                .put()
+                .uri(REVIEW_URL + "/{id}", 1)
                 .bodyValue(review)
                 .exchange()
                 .expectStatus()
@@ -119,7 +119,7 @@ public class ReviewsIntgTest {
                 .expectBodyList(Review.class)
                 .consumeWith(listEntityExchangeResult -> {
                     List<Review> responseBody = listEntityExchangeResult.getResponseBody();
-                    assert responseBody.size() == 2;
+                    assert responseBody.size() == 1;
                 });
     }
 }

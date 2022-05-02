@@ -38,7 +38,7 @@ public class ReviewHandler {
 
     public Mono<ServerResponse> updateReview(ServerRequest request) {
         // find the existing review record
-        Mono<Review> byId = reviewRepository.findById(request.pathVariable("id"));
+        Mono<Review> byId = reviewRepository.findById(request.pathVariable("id")).log();
         // copy the new value from the input and save it again
         return byId.flatMap(
                 // for the mono request
@@ -52,7 +52,7 @@ public class ReviewHandler {
                         // 2. save into db
                         .flatMap(reviewRepository::save)
                         // 3. for each review we saved, create an server response
-                        .flatMap(savedReview -> ServerResponse.ok().bodyValue(savedReview)));
+                        .flatMap(savedReview -> ServerResponse.ok().bodyValue(savedReview))).log();
     }
 
     public Mono<ServerResponse> deleteReview(ServerRequest request) {
