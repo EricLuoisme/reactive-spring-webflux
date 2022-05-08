@@ -1,6 +1,7 @@
 package com.reactivespring.routes;
 
 import com.reactivespring.domain.Review;
+import com.reactivespring.exception.GlobalErrorHandler;
 import com.reactivespring.handler.ReviewHandler;
 import com.reactivespring.repository.ReviewReactiveRepository;
 import com.reactivespring.router.ReviewRouter;
@@ -19,7 +20,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @WebFluxTest
-@ContextConfiguration(classes = {ReviewRouter.class, ReviewHandler.class})
+@ContextConfiguration(classes = {ReviewRouter.class, ReviewHandler.class, GlobalErrorHandler.class})
 @AutoConfigureWebTestClient
 public class ReviewsUnitTest {
 
@@ -52,6 +53,22 @@ public class ReviewsUnitTest {
                     assert savedReview != null;
                     assert savedReview.getReviewId() != null;
                 });
+    }
+
+    @Test
+    void addReviewException() {
+        var review = new Review(null, null, "Awesome Movie", -1.2);
+
+        Mockito.when(reviewReactiveRepository.save(ArgumentMatchers.isA(Review.class)))
+                .thenReturn(Mono.just(new Review("abc", 1L, "Awesome Movie", 9.0)));
+
+        webTestClient
+                .post()
+                .uri(REVIEW_URL)
+                .bodyValue(review)
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
     }
 
     @Test
