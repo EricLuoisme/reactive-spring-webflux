@@ -2,7 +2,6 @@ package com.reactivespring.routes;
 
 import com.reactivespring.domain.Review;
 import com.reactivespring.repository.ReviewReactiveRepository;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
