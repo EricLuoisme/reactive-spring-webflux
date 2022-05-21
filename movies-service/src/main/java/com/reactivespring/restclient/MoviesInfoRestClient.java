@@ -51,6 +51,8 @@ public class MoviesInfoRestClient {
                 })
                 // take care of normal result
                 .bodyToMono(MovieInfo.class)
+                // retry max 3-times
+                .retry(3)
                 .log();
     }
 

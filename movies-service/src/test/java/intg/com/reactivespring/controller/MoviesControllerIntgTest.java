@@ -58,6 +58,8 @@ public class MoviesControllerIntgTest {
                     assert Objects.requireNonNull(movie).getReviewList().size() == 2;
                 });
 
+        WireMock.verify(4, WireMock.getRequestedFor(WireMock.urlEqualTo("/v1/movieinfos/" + movieId)));
+
 
     }
 
