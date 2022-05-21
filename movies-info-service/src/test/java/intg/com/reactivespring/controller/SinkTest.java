@@ -29,6 +29,19 @@ public class SinkTest {
         System.out.println("\n Another emission occur \n");
         replaySink.emitNext(3, Sinks.EmitFailureHandler.FAIL_FAST);
 
+        // cause we using the replay, later subscriber would also have receive the previous emission
+        Flux<Integer> integerFlux_3 = replaySink.asFlux();
+        integerFlux_3.subscribe(i -> {
+            System.out.println("Subscriber 3: " + i);
+        });
+
+    }
+
+    @Test
+    public void sink_multiCast() {
+        Sinks.many().multicast().onBackpressureBuffer();
+
+
     }
 
 }
