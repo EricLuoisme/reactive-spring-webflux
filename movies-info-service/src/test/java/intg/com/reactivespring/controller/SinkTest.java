@@ -39,8 +39,24 @@ public class SinkTest {
 
     @Test
     public void sink_multiCast() {
-        Sinks.many().multicast().onBackpressureBuffer();
+        Sinks.Many<Integer> multiCast = Sinks.many().multicast().onBackpressureBuffer();
 
+
+        multiCast.emitNext(1, Sinks.EmitFailureHandler.FAIL_FAST);
+        multiCast.emitNext(2, Sinks.EmitFailureHandler.FAIL_FAST);
+
+        Flux<Integer> integerFlux = multiCast.asFlux();
+        integerFlux.subscribe(i -> {
+            System.out.println("Subscriber 1: " + i);
+        });
+
+        Flux<Integer> integerFlux_2 = multiCast.asFlux();
+        integerFlux_2.subscribe(i -> {
+            System.out.println("Subscriber 2: " + i);
+        });
+
+        System.out.println("\n Another emission occur \n");
+        multiCast.emitNext(3, Sinks.EmitFailureHandler.FAIL_FAST);
 
     }
 
