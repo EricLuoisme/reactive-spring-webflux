@@ -8,7 +8,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
+import reactor.util.retry.RetryBackoffSpec;
+
+import java.time.Duration;
 
 @Component
 public class MoviesInfoRestClient {
@@ -19,8 +24,19 @@ public class MoviesInfoRestClient {
     @Value("${restClient.moviesInfoUrl}")
     private String moviesInfoUrl;
 
+    /** Retry Strategy */
+    private RetryBackoffSpec retryBackoffSpec = Retry.fixedDelay(3, Duration.ofSeconds(1))
+            // would throw exception if reach the max retry-times
+            .onRetryExhaustedThrow((
+                    // propagate the error
+                    (retryBackoffSpec1, retrySignal) -> Exceptions.propagate(retrySignal.failure())));
+
 
     public Mono<MovieInfo> retrieveMovieInfo(String movieId) {
+
+
+
+
 
         String url = moviesInfoUrl.concat("/{id}");
 
@@ -52,7 +68,9 @@ public class MoviesInfoRestClient {
                 // take care of normal result
                 .bodyToMono(MovieInfo.class)
                 // retry max 3-times
-                .retry(3)
+//                .retry(3)
+                // retry with fixed delay
+                .retryWhen(retryBackoffSpec)
                 .log();
     }
 
